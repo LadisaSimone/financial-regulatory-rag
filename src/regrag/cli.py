@@ -16,7 +16,24 @@ import sys
 from regrag.config import load_settings
 
 
+def load_dotenv(path: str = ".env") -> None:
+    """Minimal .env loader (KEY=VALUE lines); never overrides variables already set."""
+    import os
+    from pathlib import Path
+
+    p = Path(path)
+    if not p.exists():
+        return
+    for line in p.read_text().splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, val = line.split("=", 1)
+        os.environ.setdefault(key.strip(), val.strip().strip('"').strip("'"))
+
+
 def main(argv: list[str] | None = None) -> int:
+    load_dotenv()
     ap = argparse.ArgumentParser(prog="regrag")
     ap.add_argument("--config", help="extra YAML merged over configs/default.yaml")
     sub = ap.add_subparsers(dest="cmd", required=True)

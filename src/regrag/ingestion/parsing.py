@@ -12,7 +12,12 @@ import re
 from collections import Counter
 from pathlib import Path
 
-from regrag.ingestion.cleaning import clean_text, detect_repeated_lines, normalize_line, remove_lines
+from regrag.ingestion.cleaning import (
+    clean_text,
+    detect_repeated_lines,
+    normalize_line,
+    remove_lines,
+)
 from regrag.logging_utils import get_logger, log
 from regrag.schemas import DocumentMeta, DocumentPage
 
