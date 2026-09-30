@@ -18,22 +18,37 @@ choice is backed by an experiment** (see [Ablation study](#evaluation--ablation)
 
 ## Architecture
 
-```
-                        ┌─────────────── ingestion (regrag ingest) ───────────────┐
- data/manifest.yaml ──► download ─► validate ─► parse (PyMuPDF) ─► clean ─► structure/sections
-                                                                        │
-                                   chunk (fixed | recursive | section | parent_child)
-                                                                        │
-                                  embed (OpenAI | BGE/E5 local) ─► Qdrant (versioned collection)
-                                                                  └► chunks_<strategy>.jsonl (BM25, neighbors)
+**Offline — ingestion** (`regrag ingest`)
 
- query ─► normalize ─► [filter inference] ─► [LLM rewrite | multi-query]
-       ─► BM25 ┐
-       ─► dense┴► RRF fusion ─► dedup ─► [cross-encoder rerank] ─► ContextBuilder (budget, diversity,
-                                                                    neighbors / parent) 
-       ─► LLM (structured JSON, versioned prompt) ─► Pydantic parse ─► citation validation
-       ─► answer + validated citations + usage/latency/cost trace
+```mermaid
+flowchart LR
+    M[("manifest.yaml")] --> D[Download] --> V[Validate] --> P["Parse<br/>PyMuPDF"] --> C["Clean &<br/>structure"]
+    C --> K["Chunk<br/>fixed · recursive<br/>section · parent/child"]
+    K --> E["Embed<br/>OpenAI · BGE · E5"]
+    E --> Q[("Qdrant<br/>versioned collection")]
+    K --> J[("chunks.jsonl<br/>BM25 + neighbors")]
 ```
+
+**Online — query** (`POST /query`)
+
+```mermaid
+flowchart LR
+    U(["Question"]) --> N["Normalize ·<br/>filter inference ·<br/>rewrite / multi-query"]
+    N --> B["BM25"]
+    N --> DN["Dense"]
+    B --> F["RRF fusion<br/>+ dedup"]
+    DN --> F
+    F --> R["Cross-encoder<br/>rerank"]
+    R --> X["Context builder<br/>budget · diversity"]
+    X --> L["LLM<br/>structured JSON"]
+    L --> CV{"Citation<br/>validation"}
+    CV -->|valid| A(["Answer + citations<br/>+ latency / cost"])
+    CV -->|none valid| I(["Insufficient<br/>evidence"])
+```
+
+Optional stages (reranker, rewriting, multi-query, neighbor expansion) are switched on in `configs/` and kept only if the ablation shows they help.
+
+### Where each part of the spec lives
 
 | Spec section | Where |
 |---|---|
