@@ -139,6 +139,11 @@ Hallucination cannot be "solved" by prompting. It is reduced — and made measur
 
 ## Growing the corpus and the benchmark (next steps)
 
+> **Manual downloads.** Some publishers (EUR-Lex, occasionally FATF) block scripted downloads. If
+> `regrag ingest` reports *"returned HTML instead of a PDF"* or *403*, open the `source_url` in your
+> browser and save the file as `data/raw/<document_id>.pdf`. The next run picks it up and records its
+> sha256 and download date in the manifest.
+
 - [ ] Extend `data/manifest.yaml` from 9 to 30–100 documents (EBA, ECB, EC/EUR-Lex, FATF, AMLA, DNB).
       Prefer overlapping documents (EBA vs FATF on PEPs) so retrieval is non-trivial.
 - [ ] Extend `eval/questions.jsonl` to 75–150 questions across all types; add `relevant_evidence`

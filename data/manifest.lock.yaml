@@ -1,0 +1,29 @@
+# Machine-written by `regrag ingest`: provenance of downloaded files. Do not edit.
+documents:
+  eba_gl_2022_15_remote_customer_onboarding:
+    download_date: '2026-09-30'
+    sha256: a8d23dd230bb95dd32a575165ab8829cfb16ad04c77eacb3d1a60b30532c0e0b
+  eba_gl_2023_04_mltf_risk_access_financial_services:
+    download_date: '2026-09-30'
+    sha256: c7d4f1380fbf286e14c6f885109dbd2f6eb54fc0595495dbe24cb7a9c8f9d83c
+  eba_ml_tf_risk_factors_gl_2021_02_consolidated:
+    download_date: '2026-09-30'
+    sha256: f027028d82fb74882b10723d9412502ef85fa7677379528d5aa94158ca9ce411
+  eu_directive_2015_849_amld4:
+    download_date: '2026-09-30'
+    sha256: ca7a00f67b54dbaf579abeee4ca1f55c02175890a724b45f67db6b19f0f2b803
+  eu_regulation_2024_1624_amlr:
+    download_date: '2026-09-30'
+    sha256: c4024f4c4c1616cc729ed4ec4333274d711324efa9750d3d531bf90770ed8eb6
+  fatf_guidance_bo_legal_persons_2023:
+    download_date: '2026-09-30'
+    sha256: 95e4185beb7660f8d3b8323c2398102ea2dd794c940a574572561b6d157237d5
+  fatf_guidance_peps_r12_r22_2013:
+    download_date: '2026-09-30'
+    sha256: 6563562e1e520d0a1f3adfd9eed3aeefaebca24ecbb87a5c713f2a8232bfc61c
+  fatf_rba_banking_sector_2014:
+    download_date: '2026-09-30'
+    sha256: cd6b8ee7edc61434a61491debbd727dd2eb0adca53d52a5003e67d01a8a317a1
+  fatf_recommendations:
+    download_date: '2026-09-30'
+    sha256: ba862e1f095bceac22ab9a48863e6e8238016a2ebd61c71718febb5c29c285ab

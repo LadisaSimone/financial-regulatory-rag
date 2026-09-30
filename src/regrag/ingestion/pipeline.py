@@ -13,7 +13,7 @@ from regrag.chunking import get_chunker
 from regrag.config import Settings
 from regrag.embeddings.base import get_embedding_provider
 from regrag.ingestion.download import download_document
-from regrag.ingestion.manifest import load_manifest, save_manifest
+from regrag.ingestion.manifest import load_manifest, save_lock
 from regrag.ingestion.parsing import ParseError, parse_pdf
 from regrag.ingestion.validation import IngestionReport, text_hash, validate_pages
 from regrag.logging_utils import get_logger, log
@@ -71,7 +71,7 @@ def build_chunks(settings: Settings, report: IngestionReport, download: bool = T
         log(logger, "document_ingested", document_id=meta.document_id, pages=len(pages), chunks=len(doc_chunks))
 
     if download:
-        save_manifest(manifest_path, docs)  # persist download_date / sha256
+        save_lock(manifest_path, docs)  # persist download_date / sha256 without touching the manifest
     report.chunks_generated = len(chunks)
     return chunks
 

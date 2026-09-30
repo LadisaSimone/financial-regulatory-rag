@@ -58,11 +58,28 @@ class SectionChunker(RecursiveChunker):
 
     name = "section"
 
+    def section_groups(self, units: list[Unit], max_tokens: int) -> list[list[Unit]]:
+        """Group units by section, then merge consecutive tiny sections (e.g. short EUR-Lex
+        articles or FATF sub-headings) until they reach ~max_tokens/4, never exceeding max_tokens.
+        A merged chunk keeps the first section as its label."""
+        min_tokens = max_tokens // 4
+        groups: list[list[Unit]] = []
+        for _section, grp in groupby(units, key=lambda u: u.section):
+            g = list(grp)
+            size = sum(u.tokens for u in g)
+            if groups:
+                prev = sum(u.tokens for u in groups[-1])
+                if prev < min_tokens and prev + size <= max_tokens:
+                    groups[-1].extend(g)
+                    continue
+            groups.append(g)
+        return groups
+
     def chunk(self, pages: list[DocumentPage], meta: DocumentMeta) -> list[Chunk]:
         units = self._units(pages, self.cfg.max_tokens)
         chunks, pos = [], 0
-        for _section, grp in groupby(units, key=lambda u: u.section):
-            for g in pack_units(list(grp), self.cfg.max_tokens, self.cfg.overlap):
+        for grp in self.section_groups(units, self.cfg.max_tokens):
+            for g in pack_units(grp, self.cfg.max_tokens, self.cfg.overlap):
                 chunks.append(self._make(meta, g, pos))
                 pos += 1
         return chunks
@@ -77,8 +94,8 @@ class ParentChildChunker(RecursiveChunker):
         parent_max = self.cfg.max_tokens * 2
         units = self._units(pages, self.cfg.child_tokens)
         chunks, pos, parent_idx = [], 0, 0
-        for _section, grp in groupby(units, key=lambda u: u.section):
-            for parent in pack_units(list(grp), parent_max, 0):
+        for grp in SectionChunker.section_groups(self, units, parent_max):
+            for parent in pack_units(grp, parent_max, 0):
                 parent_id = f"{meta.document_id}:parent:{parent_idx:05d}"
                 parent_text = "\n".join(u.text for u in parent)
                 parent_idx += 1

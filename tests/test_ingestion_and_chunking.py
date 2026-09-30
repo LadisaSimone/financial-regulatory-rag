@@ -50,7 +50,7 @@ def test_all_strategies_traceable_and_deterministic(settings, strategy):
 def test_section_chunks_do_not_cross_sections(settings):
     meta = load_manifest(settings.path("manifest"))[0]
     pages = parse_pdf(settings.path("raw_dir") / "doc_a.pdf", meta)
-    chunks = get_chunker(Chunking(strategy="section", max_tokens=512, overlap=0)).chunk(pages, meta)
+    chunks = get_chunker(Chunking(strategy="section", max_tokens=64, overlap=0)).chunk(pages, meta)
     for c in chunks:
         assert c.page_start == c.page_end  # each synthetic section is one page
 
@@ -69,3 +69,28 @@ def test_ingestion_report_and_duplicates(settings):
     assert report.duplicate_documents and "doc_c" in report.duplicate_documents[0]
     store = ChunkStore.load(chunks_path(settings.path("processed_dir"), "section"))
     assert len(store.chunks) == report.chunks_generated
+
+
+def test_tiny_sections_are_merged():
+    from regrag.chunking.base import Unit
+    from regrag.chunking.strategies import SectionChunker
+
+    ch = SectionChunker(Chunking(strategy="section", max_tokens=400, overlap=0))
+    units = [Unit("a", 1, "Article 1", 20), Unit("b", 1, "Article 2", 30), Unit("c", 2, "Article 3", 300)]
+    groups = ch.section_groups(units, 400)
+    assert [[u.section for u in g] for g in groups] == [["Article 1", "Article 2", "Article 3"]]
+
+
+def test_heading_classification():
+    from regrag.ingestion.parsing import _classify
+
+    def span(text, size=11.0, bold=False):
+        return {"text": text, "size": size, "flags": 16 if bold else 0, "font": "Arial"}
+
+    body = 11.0
+    assert _classify("Enhanced customer due diligence", [span("x", 12, True)], body) == "heading"
+    assert _classify("4.38. The measures firms take to establish", [span("4.38.", 11, True), span(" The", 11)], body) == "body"
+    assert _classify("The following factors may contribute to reducing risk:", [span("x", 11, True)], body) == "body"
+    assert _classify("Article 18", [span("Article 18", 9.6)], 9.6) == "marker"
+    assert _classify("3.", [span("3.", 12, True)], body) == "marker"
+    assert _classify("EN", [span("EN", 14, True)], body) == "body"

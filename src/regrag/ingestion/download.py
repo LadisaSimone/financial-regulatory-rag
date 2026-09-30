@@ -29,18 +29,36 @@ def _transient(exc: BaseException) -> bool:
     return isinstance(exc, httpx.TransportError)
 
 
+BOT_UA = "regrag/0.1 (research; +https://ladisasimone.com)"
+BROWSER_UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/537.36 "
+              "(KHTML, like Gecko) Chrome/126.0 Safari/537.36")
+
+
 @retry(
     retry=retry_if_exception(_transient),
     stop=stop_after_attempt(4),
     wait=wait_exponential(multiplier=1, max=20),
     reraise=True,
 )
-def _fetch(url: str, timeout_s: int) -> bytes:
-    headers = {"User-Agent": "regrag/0.1 (research; +https://ladisasimone.com)"}
+def _get(url: str, timeout_s: int, user_agent: str) -> bytes:
+    headers = {"User-Agent": user_agent, "Accept": "application/pdf,*/*;q=0.8"}
     with httpx.Client(follow_redirects=True, timeout=timeout_s, headers=headers) as client:
         r = client.get(url)
         r.raise_for_status()
         return r.content
+
+
+def _fetch(url: str, timeout_s: int) -> bytes:
+    """Identify ourselves first; some publishers (FATF, EUR-Lex) block non-browser agents,
+    so on 403 or a non-PDF answer retry once with a browser User-Agent."""
+    try:
+        content = _get(url, timeout_s, BOT_UA)
+        if content.startswith(b"%PDF"):
+            return content
+    except httpx.HTTPStatusError as e:
+        if e.response.status_code != 403:
+            raise
+    return _get(url, timeout_s, BROWSER_UA)
 
 
 def download_document(meta: DocumentMeta, raw_dir: Path, timeout_s: int = 60) -> Path:
@@ -50,10 +68,17 @@ def download_document(meta: DocumentMeta, raw_dir: Path, timeout_s: int = 60) ->
         if meta.sha256 and sha256_of(target) != meta.sha256:
             log(logger, "hash_mismatch_redownload", document_id=meta.document_id)
         else:
+            if not meta.sha256:  # manually downloaded file: record provenance
+                meta.sha256 = sha256_of(target)
+                meta.download_date = meta.download_date or date.today()
             return target
     content = _fetch(str(meta.source_url), timeout_s)
     if not content.startswith(b"%PDF"):
-        raise ValueError(f"{meta.document_id}: downloaded content is not a PDF")
+        raise ValueError(
+            f"{meta.document_id}: the site returned HTML instead of a PDF (likely bot protection). "
+            f"Open {meta.source_url} in a browser and save the file as {target} — "
+            "the next `regrag ingest` will use it."
+        )
     target.write_bytes(content)
     meta.download_date = date.today()
     meta.sha256 = sha256_of(target)

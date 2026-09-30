@@ -47,6 +47,10 @@ where = ["src"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+filterwarnings = [
+    "ignore:builtin type .* has no __module__ attribute:DeprecationWarning",  # PyMuPDF SWIG bindings
+    "ignore:Payload indexes have no effect in the local Qdrant:UserWarning",   # in-memory Qdrant in tests
+]
 
 [tool.ruff]
 line-length = 100

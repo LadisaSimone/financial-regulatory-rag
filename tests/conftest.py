@@ -40,7 +40,10 @@ DOC_B = {
 
 
 def make_pdf(path, doc, header="EBA PUBLIC — Confidentiality: none", filler=6):
-    import fitz
+    try:
+        import pymupdf as fitz
+    except ImportError:
+        import fitz
 
     pdf = fitz.open()
     for i, (head, body) in enumerate(doc["sections"]):
