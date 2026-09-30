@@ -1,0 +1,4 @@
+# Open-source / local embedding model (no API cost). Requires: pip install -e ".[local]"
+embeddings:
+  provider: sentence_transformers
+  model: BAAI/bge-small-en-v1.5

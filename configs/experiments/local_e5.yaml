@@ -1,0 +1,4 @@
+# Alternative local embedding model for the embedding comparison (query:/passage: prefixes handled automatically).
+embeddings:
+  provider: sentence_transformers
+  model: intfloat/e5-base-v2

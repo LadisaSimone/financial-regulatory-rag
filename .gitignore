@@ -1,0 +1,29 @@
+# secrets
+.env
+
+# python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+dist/
+build/
+
+# data artifacts (reproducible from the manifest)
+data/raw/
+data/processed/
+data/cache/
+experiments/traces.jsonl
+mlruns/
+
+# keep experiment results (they justify decisions) — commit them deliberately
+# experiments/results/
+
+.DS_Store
+.idea/
+.vscode/

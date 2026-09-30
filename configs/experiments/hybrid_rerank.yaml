@@ -1,0 +1,8 @@
+retrieval:
+  type: hybrid
+  dense_top_k: 30
+  sparse_top_k: 30
+reranker:
+  enabled: true
+  candidates: 30
+  top_k: 6

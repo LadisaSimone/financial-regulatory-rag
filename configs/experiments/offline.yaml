@@ -1,0 +1,9 @@
+# Runs the whole pipeline with no API key and no model downloads (plumbing check only —
+# hashing embeddings and the extractive fake LLM are NOT meaningful quality baselines).
+embeddings:
+  provider: hashing
+  model: hashing
+  cache: false
+llm:
+  provider: fake
+  model: fake-extractive

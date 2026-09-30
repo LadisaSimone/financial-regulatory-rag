@@ -1,0 +1,87 @@
+# Default configuration. Every experimental knob lives here, never in code.
+# Override with another YAML (REGRAG_CONFIG=configs/experiments/x.yaml) or env vars
+# (REGRAG__RETRIEVAL__FINAL_TOP_K=5). API keys come ONLY from environment variables.
+
+paths:
+  manifest: data/manifest.yaml
+  raw_dir: data/raw
+  processed_dir: data/processed
+  cache_dir: data/cache
+  eval_dataset: eval/questions.jsonl
+  results_dir: experiments/results
+  traces_file: experiments/traces.jsonl
+
+ingestion:
+  min_page_chars: 80            # pages below this are flagged "near-empty"
+  header_footer_min_ratio: 0.5  # a line repeated on >=50% of pages is treated as header/footer
+  timeout_s: 60
+
+chunking:
+  strategy: section             # fixed | recursive | section | parent_child
+  max_tokens: 512
+  overlap: 64
+  child_tokens: 128             # parent_child only
+  tokenizer: cl100k_base
+
+embeddings:
+  provider: openai              # openai | sentence_transformers | hashing (offline/test)
+  model: text-embedding-3-small
+  batch_size: 64
+  cache: true
+
+vector_store:
+  url: http://localhost:6333    # use ":memory:" for tests
+  collection_prefix: regrag
+  collection_version: 1
+
+retrieval:
+  type: hybrid                  # dense | bm25 | hybrid
+  dense_top_k: 20
+  sparse_top_k: 20
+  final_top_k: 8
+  rrf_k: 60
+  dense_weight: 1.0
+  sparse_weight: 1.0
+  dedup_text_similarity: 0.9    # Jaccard over token shingles; set 1.0 to disable
+  infer_filters: false          # conservative authority inference from the query ("What does the EBA say...")
+  filter_mode: boost            # boost | restrict
+
+reranker:
+  enabled: false
+  model: cross-encoder/ms-marco-MiniLM-L-6-v2
+  candidates: 30
+  top_k: 6
+
+query:
+  normalize: true
+  rewriting: false
+  multi_query: false
+  multi_query_n: 3
+
+context:
+  max_tokens: 6000
+  neighbor_expansion: false
+  neighbor_window: 1
+  max_chunks_per_document: 4    # source diversity
+
+llm:
+  provider: openai              # openai | fake (offline/test)
+  model: gpt-4o-mini
+  temperature: 0.0
+  max_output_tokens: 800
+  timeout_s: 60
+  max_retries: 3
+  prompt_version: v1
+
+cache:
+  llm_responses: true
+
+pricing_usd_per_1m_tokens:      # approximate, update when prices change
+  gpt-4o-mini: { input: 0.15, output: 0.60 }
+  gpt-4o: { input: 2.50, output: 10.00 }
+  text-embedding-3-small: { input: 0.02, output: 0.0 }
+  text-embedding-3-large: { input: 0.13, output: 0.0 }
+
+api:
+  max_query_chars: 1000
+  debug: false

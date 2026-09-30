@@ -1,0 +1,88 @@
+# Document manifest — the single source of truth for the corpus.
+# Starter set of 9 authoritative public documents. Target: 30–100 (see README "Growing the corpus").
+# download_date and sha256 are filled in automatically by `regrag ingest`.
+# Always verify publication_date / version against the source page before relying on it.
+documents:
+  - document_id: eba_ml_tf_risk_factors_gl_2021_02_consolidated
+    title: Guidelines on ML/TF Risk Factors (EBA/GL/2021/02, consolidated version)
+    authority: EBA
+    document_type: guideline
+    publication_date: 2021-03-01
+    version: consolidated (incl. EBA/GL/2023/03 amendments)
+    source_url: https://www.eba.europa.eu/sites/default/files/document_library/Publications/Guidelines/2023/EBA-GL-2023-03/1061654/Guidelines%20ML%20TF%20Risk%20Factors_conslidated.pdf.pdf
+    language: en
+    tags: [aml, cdd, edd, risk_factors]
+
+  - document_id: eba_gl_2023_04_mltf_risk_access_financial_services
+    title: Guidelines on policies and controls for the effective management of ML/TF risks when providing access to financial services (EBA/GL/2023/04)
+    authority: EBA
+    document_type: guideline
+    publication_date: 2023-03-31
+    source_url: https://www.eba.europa.eu/sites/default/files/document_library/Publications/Guidelines/2023/1054144/Guidelines%20on%20MLTF%20risk%20management%20and%20access%20to%20financial%20services.pdf
+    language: en
+    tags: [aml, de_risking, access]
+
+  - document_id: eba_gl_2022_15_remote_customer_onboarding
+    title: Guidelines on the use of Remote Customer Onboarding Solutions (EBA/GL/2022/15)
+    authority: EBA
+    document_type: guideline
+    publication_date: 2022-11-22
+    source_url: https://www.eba.europa.eu/sites/default/files/document_library/Publications/Guidelines/2022/EBA-GL-2022-15%20GL%20on%20remote%20customer%20onboarding/1043884/Guidelines%20on%20the%20use%20of%20Remote%20Customer%20Onboarding%20Solutions.pdf
+    language: en
+    tags: [kyc, cdd, onboarding, identity_verification]
+
+  - document_id: fatf_recommendations
+    title: The FATF Recommendations — International Standards on Combating Money Laundering and the Financing of Terrorism & Proliferation
+    authority: FATF
+    document_type: recommendation
+    publication_date: 2012-02-16
+    version: as updated (check cover page for latest amendment date)
+    source_url: https://www.fatf-gafi.org/content/dam/fatf-gafi/recommendations/FATF%20Recommendations%202012.pdf.coredownload.inline.pdf
+    language: en
+    tags: [aml, cft, standards]
+
+  - document_id: fatf_guidance_peps_r12_r22_2013
+    title: FATF Guidance — Politically Exposed Persons (Recommendations 12 and 22)
+    authority: FATF
+    document_type: guidance
+    publication_date: 2013-06-01
+    source_url: https://www.fatf-gafi.org/content/dam/fatf-gafi/guidance/Guidance-PEP-Rec12-22.pdf.coredownload.pdf
+    language: en
+    tags: [pep, edd]
+
+  - document_id: fatf_guidance_bo_legal_persons_2023
+    title: FATF Guidance on Beneficial Ownership of Legal Persons (Recommendation 24)
+    authority: FATF
+    document_type: guidance
+    publication_date: 2023-03-01
+    source_url: https://www.fatf-gafi.org/content/dam/fatf-gafi/guidance/Guidance-Beneficial-Ownership-Legal-Persons.pdf.coredownload.pdf
+    language: en
+    tags: [beneficial_ownership, transparency]
+
+  - document_id: fatf_rba_banking_sector_2014
+    title: FATF Guidance for a Risk-Based Approach — The Banking Sector
+    authority: FATF
+    document_type: guidance
+    publication_date: 2014-10-01
+    source_url: https://www.fatf-gafi.org/content/dam/fatf-gafi/guidance/Risk-Based-Approach-Banking-Sector.pdf
+    language: en
+    tags: [rba, banking, monitoring]
+
+  - document_id: eu_directive_2015_849_amld4
+    title: Directive (EU) 2015/849 on the prevention of the use of the financial system for the purposes of money laundering or terrorist financing
+    authority: EC
+    document_type: directive
+    publication_date: 2015-05-20
+    version: original OJ text (consolidated versions available on EUR-Lex)
+    source_url: https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:32015L0849
+    language: en
+    tags: [aml, cdd, edd, pep, beneficial_ownership, law]
+
+  - document_id: eu_regulation_2024_1624_amlr
+    title: Regulation (EU) 2024/1624 on the prevention of the use of the financial system for the purposes of money laundering or terrorist financing (AMLR)
+    authority: EC
+    document_type: regulation
+    publication_date: 2024-06-19
+    source_url: https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=OJ:L_202401624
+    language: en
+    tags: [aml, cdd, edd, pep, beneficial_ownership, law, amla]
