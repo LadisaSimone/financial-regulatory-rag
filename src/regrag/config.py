@@ -10,6 +10,7 @@ Secrets (OPENAI_API_KEY, ...) are read from env only and never stored in config.
 from __future__ import annotations
 
 import os
+import re
 from pathlib import Path
 from typing import Any, Literal
 
@@ -92,7 +93,7 @@ class Context(BaseModel):
 
 
 class LLM(BaseModel):
-    provider: Literal["openai", "fake"] = "openai"
+    provider: Literal["openai", "anthropic", "fake"] = "openai"
     model: str = "gpt-4o-mini"
     temperature: float = 0.0
     max_output_tokens: int = 800
@@ -130,7 +131,7 @@ class Settings(BaseModel):
         return p if p.is_absolute() else ROOT / p
 
     def collection_name(self) -> str:
-        model = self.embeddings.model.replace("/", "_").replace("-", "_")
+        model = re.sub(r"[^a-zA-Z0-9]+", "_", self.embeddings.model)
         return (
             f"{self.vector_store.collection_prefix}_{self.chunking.strategy}"
             f"_{model}_v{self.vector_store.collection_version}"

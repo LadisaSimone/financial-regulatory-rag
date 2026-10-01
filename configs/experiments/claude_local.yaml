@@ -1,0 +1,13 @@
+# Claude for generation + free local embeddings (no OpenAI account needed).
+# Requires: pip install -e ".[anthropic,local]"  and ANTHROPIC_API_KEY in .env
+# Check https://docs.claude.com/en/docs/about-claude/models for current model ids and prices.
+embeddings:
+  provider: sentence_transformers
+  model: BAAI/bge-small-en-v1.5
+llm:
+  provider: anthropic
+  model: claude-haiku-4-5-20251001
+vector_store:
+  # Embedded Qdrant stored in data/qdrant — no Docker needed for local development.
+  # For the Docker server instead: docker compose up -d qdrant and set url: http://localhost:6333
+  url: local:data/qdrant

@@ -79,6 +79,9 @@ cache:
 pricing_usd_per_1m_tokens:      # approximate, update when prices change
   gpt-4o-mini: { input: 0.15, output: 0.60 }
   gpt-4o: { input: 2.50, output: 10.00 }
+  claude-haiku-4-5-20251001: { input: 1.00, output: 5.00 }   # platform.claude.com/docs/en/about-claude/pricing (Oct 2026)
+  claude-sonnet-5-5: { input: 2.00, output: 10.00 }
+  claude-opus-5-5: { input: 4.00, output: 20.00 }
   text-embedding-3-small: { input: 0.02, output: 0.0 }
   text-embedding-3-large: { input: 0.13, output: 0.0 }
 

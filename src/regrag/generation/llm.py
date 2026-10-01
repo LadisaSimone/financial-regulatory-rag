@@ -68,6 +68,47 @@ class OpenAILLM(LLMProvider):
         )
 
 
+class AnthropicLLM(LLMProvider):
+    """Claude via the Anthropic Messages API (reads ANTHROPIC_API_KEY from env).
+    There is no JSON response_format: the system prompt asks for JSON and
+    parse_llm_answer() validates it, falling back to an abstention on bad output."""
+
+    def __init__(self, cfg: LLMConfig):
+        try:
+            from anthropic import Anthropic
+        except ImportError as e:
+            raise LLMError("pip install -e '.[anthropic]' to use the Anthropic provider") from e
+
+        from regrag.retry import api_retry
+
+        self.cfg, self.model = cfg, cfg.model
+        self.client = Anthropic(timeout=cfg.timeout_s, max_retries=0)
+        self._call = api_retry(self._call_once, attempts=cfg.max_retries)
+        # Recent SDK/model versions no longer accept sampling parameters; only send
+        # temperature when this SDK's Messages.create() signature has it.
+        import inspect
+
+        self._accepts_temperature = "temperature" in inspect.signature(self.client.messages.create).parameters
+
+    def _call_once(self, **kw):
+        return self.client.messages.create(**kw)
+
+    def generate(self, system: str, user: str, json_mode: bool = False) -> LLMResult:
+        if json_mode:
+            system += "\n\nRespond with the JSON object only, no prose and no code fences."
+        kw = dict(model=self.model, max_tokens=self.cfg.max_output_tokens, system=system,
+                  messages=[{"role": "user", "content": user}])
+        if self._accepts_temperature:
+            kw["temperature"] = self.cfg.temperature
+        try:
+            r = self._call(**kw)
+        except Exception as e:
+            raise LLMError(f"LLM call failed: {type(e).__name__}: {e}") from e
+        text = "".join(b.text for b in r.content if getattr(b, "type", "") == "text")
+        return LLMResult(text=text, prompt_tokens=r.usage.input_tokens,
+                         completion_tokens=r.usage.output_tokens, model=self.model)
+
+
 class FakeLLM(LLMProvider):
     """Deterministic extractive 'LLM' for tests and offline pipeline runs.
     Picks the context chunk with the highest word overlap with the question; abstains when
@@ -119,7 +160,8 @@ class CachedLLM(LLMProvider):
 
 
 def get_llm(cfg: LLMConfig, cache_dir: Path | None = None, use_cache: bool = True) -> LLMProvider:
-    llm: LLMProvider = OpenAILLM(cfg) if cfg.provider == "openai" else FakeLLM()
+    providers = {"openai": OpenAILLM, "anthropic": AnthropicLLM}
+    llm: LLMProvider = providers[cfg.provider](cfg) if cfg.provider in providers else FakeLLM()
     if use_cache and cache_dir is not None and cfg.provider != "fake":
         llm = CachedLLM(llm, cache_dir)
     return llm

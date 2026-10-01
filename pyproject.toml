@@ -29,6 +29,9 @@ dependencies = [
 local = [
     "sentence-transformers>=3.0",
 ]
+anthropic = [
+    "anthropic>=0.40",
+]
 tracking = [
     "mlflow>=2.12",
 ]

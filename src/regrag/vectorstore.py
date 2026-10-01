@@ -8,6 +8,7 @@ index can be rebuilt side by side before switching.
 from __future__ import annotations
 
 import uuid
+from pathlib import Path
 from typing import Any
 
 from qdrant_client import QdrantClient
@@ -27,8 +28,22 @@ def point_id(chunk_id: str) -> str:
 class QdrantStore:
     def __init__(self, url: str, collection: str):
         self.collection = collection
+        self.is_server = url.startswith("http")
         try:
-            self.client = QdrantClient(location=":memory:") if url == ":memory:" else QdrantClient(url=url, timeout=10)
+            if url == ":memory:":
+                self.client = QdrantClient(location=":memory:")
+            elif url.startswith("local:"):  # embedded on-disk Qdrant, no Docker/server needed
+                from regrag.config import ROOT
+
+                path = Path(url[len("local:"):])
+                path = path if path.is_absolute() else ROOT / path
+                path.mkdir(parents=True, exist_ok=True)
+                self.client = QdrantClient(path=str(path))
+                import atexit
+
+                atexit.register(self.client.close)  # release the on-disk lock cleanly
+            else:
+                self.client = QdrantClient(url=url, timeout=10)
         except Exception as e:
             raise VectorStoreUnavailable(str(e)) from e
 
@@ -47,7 +62,7 @@ class QdrantStore:
                 self.collection,
                 vectors_config=qm.VectorParams(size=dim, distance=qm.Distance.COSINE),
             )
-            for field, schema in [
+            for field, schema in [] if not self.is_server else [
                 ("authority", qm.PayloadSchemaType.KEYWORD),
                 ("document_type", qm.PayloadSchemaType.KEYWORD),
                 ("document_id", qm.PayloadSchemaType.KEYWORD),

@@ -146,7 +146,8 @@ class SentenceTransformerProvider(EmbeddingProvider):
             raise EmbeddingError("pip install '.[local]' to use sentence-transformers") from e
         self.st = SentenceTransformer(model)
         self.model, self.batch_size = model, batch_size
-        self.dim = self.st.get_sentence_embedding_dimension()
+        get_dim = getattr(self.st, "get_embedding_dimension", None) or self.st.get_sentence_embedding_dimension
+        self.dim = get_dim()
         name = model.lower()
         if "e5" in name:
             self.query_prefix, self.document_prefix = "query: ", "passage: "

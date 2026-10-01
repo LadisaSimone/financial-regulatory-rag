@@ -18,6 +18,7 @@ build/
 data/raw/
 data/processed/
 data/cache/
+data/qdrant/
 experiments/traces.jsonl
 mlruns/
 
