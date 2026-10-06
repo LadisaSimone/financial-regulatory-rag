@@ -40,8 +40,16 @@ def retrieval_metrics(retrieved: list[RetrievedChunk], item: EvalItem, ks=(1, 3,
         out[f"hit@{k}"] = float(any(top))
     first = next((i for i, r in enumerate(rel) if r), None)
     out["mrr"] = 1.0 / (first + 1) if first is not None else 0.0
+    # nDCG over ground-truth *units* (document pages), consistent with recall: a chunk earns gain only
+    # if it covers at least one unit not covered by a higher-ranked chunk. (Fix: previously every
+    # relevant chunk earned gain, so several chunks on the same page could push nDCG above 1.)
     k = 10
-    dcg = sum(1.0 / math.log2(i + 2) for i, r in enumerate(rel[:k]) if r)
+    seen: set = set()
+    dcg = 0.0
+    for i, r in enumerate(rel[:k]):
+        if r - seen:
+            dcg += 1.0 / math.log2(i + 2)
+            seen |= r
     ideal = sum(1.0 / math.log2(i + 2) for i in range(min(k, len(units))))
     out["ndcg@10"] = dcg / ideal if ideal else 0.0
     return out

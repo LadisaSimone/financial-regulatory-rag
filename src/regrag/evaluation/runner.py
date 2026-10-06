@@ -51,6 +51,7 @@ def experiment_config(s: Settings) -> dict:
         "query_rewriting": s.query.rewriting, "multi_query": s.query.multi_query,
         "neighbor_expansion": s.context.neighbor_expansion, "llm": f"{s.llm.provider}:{s.llm.model}",
         "prompt_version": s.llm.prompt_version,
+        "eval_dataset": s.paths.eval_dataset,
     }
 
 

@@ -42,3 +42,13 @@ def test_run_evaluation_offline(pipeline, settings):
     assert res["retrieval_metrics"]["hit@5"] == 1.0
     assert res["generation_metrics"]["abstention_accuracy"] == 1.0
     assert (settings.path("results_dir") / f"{res['experiment_id']}.json").exists()
+
+
+def test_ndcg_never_exceeds_one_with_duplicate_page_hits():
+    item = EvalItem(id="q", question="x", relevant_evidence=[Evidence(document_id="A", pages=[24, 25])])
+    ret = [rc("1", "A", 24), rc("2", "A", 25), rc("3", "A", 25), rc("4", "A", 24)]
+    m = retrieval_metrics(ret, item)
+    assert m["ndcg@10"] == 1.0
+    # a redundant hit on an already-covered page earns no gain
+    m2 = retrieval_metrics([rc("1", "A", 24), rc("3", "A", 24), rc("2", "A", 25)], item)
+    assert m2["ndcg@10"] < 1.0
