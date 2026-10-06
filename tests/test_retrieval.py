@@ -81,3 +81,28 @@ def test_contextual_index_text():
               chunking_strategy="section", token_count=1, position=0)
     assert c.index_text() == "body"
     assert c.index_text(True).startswith("EC — Directive (EU) 2015/849 — Article 18\n")
+
+
+def test_interleave_alternates_and_dedups():
+    from regrag.retrieval.fusion import interleave
+
+    a = [rc("r1"), rc("r2"), rc("shared"), rc("r4")]
+    b = [rc("u1"), rc("shared"), rc("u3")]
+    assert [c.chunk_id for c in interleave(a, b, 6)] == ["r1", "u1", "r2", "shared", "u3", "r4"]
+    assert [c.chunk_id for c in interleave(a, [], 3)] == ["r1", "r2", "shared"]
+
+
+def test_restrict_with_fallback_keeps_other_documents_reachable(pipeline, monkeypatch):
+    from regrag.retrieval import query as qmod
+
+    # the synthetic corpus has no real document names: make "doc_b" detectable for this test only
+    monkeypatch.setitem(qmod.DOCUMENT_PATTERNS, "doc_b", r"\bRecommendations on Transparency\b")
+    pipeline.s.retrieval.infer_filters = True
+    pipeline.s.retrieval.filter_mode = "restrict"
+    hard, _ = pipeline.retrieve("Recommendations on Transparency: enhanced due diligence for high-risk customers")
+    assert hard and all(c.document_id == "doc_b" for c in hard)
+    pipeline.s.retrieval.filter_mode = "restrict_with_fallback"
+    soft, _ = pipeline.retrieve("Recommendations on Transparency: enhanced due diligence for high-risk customers")
+    assert soft[0].document_id == "doc_b"                      # named source first
+    assert any(c.document_id == "doc_a" for c in soft)          # other source still reachable
+    assert len({c.chunk_id for c in soft}) == len(soft)         # no duplicates

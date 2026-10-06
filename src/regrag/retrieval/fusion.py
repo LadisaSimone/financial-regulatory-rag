@@ -46,6 +46,21 @@ class HybridRetriever(Retriever):
         return reciprocal_rank_fusion([d, s], k=self.rrf_k, weights=self.weights)[:top_k]
 
 
+def interleave(primary: list[RetrievedChunk], secondary: list[RetrievedChunk], k: int) -> list[RetrievedChunk]:
+    """Alternate 1:1 between two ranked lists (primary first), skipping chunk ids already taken.
+    Parameter-free: no scores are compared, so lists with different score scales can be merged."""
+    out: list[RetrievedChunk] = []
+    seen: set[str] = set()
+    for i in range(max(len(primary), len(secondary))):
+        for lst in (primary, secondary):
+            if i < len(lst) and lst[i].chunk_id not in seen:
+                out.append(lst[i])
+                seen.add(lst[i].chunk_id)
+                if len(out) == k:
+                    return out
+    return out
+
+
 def _shingles(text: str, n: int = 5) -> set[tuple[str, ...]]:
     toks = re.findall(r"\w+", text.lower())
     return {tuple(toks[i : i + n]) for i in range(max(1, len(toks) - n + 1))}

@@ -71,7 +71,7 @@ class Retrieval(BaseModel):
     sparse_weight: float = 1.0
     dedup_text_similarity: float = 0.9
     infer_filters: bool = False
-    filter_mode: Literal["boost", "restrict"] = "boost"
+    filter_mode: Literal["boost", "restrict", "restrict_with_fallback"] = "boost"
     boost_ranks: int = 5  # boost mode: matching chunks move up this many positions
 
 

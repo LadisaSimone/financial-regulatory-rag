@@ -19,7 +19,7 @@ from regrag.observability import Metrics, TraceWriter, estimate_cost, timer
 from regrag.retrieval.base import Retriever
 from regrag.retrieval.bm25 import BM25Retriever
 from regrag.retrieval.dense import DenseRetriever
-from regrag.retrieval.fusion import HybridRetriever, deduplicate, reciprocal_rank_fusion
+from regrag.retrieval.fusion import HybridRetriever, deduplicate, interleave, reciprocal_rank_fusion
 from regrag.retrieval.query import ProcessedQuery, QueryProcessor, apply_boost
 from regrag.retrieval.reranker import CrossEncoderReranker, Reranker
 from regrag.schemas import LLMAnswer, MetadataFilter, RAGResponse, RetrievedChunk, Usage
@@ -72,23 +72,42 @@ class RAGPipeline:
         final_k = top_k or r.final_top_k
         candidates_k = max(self.s.reranker.candidates if self.reranker else final_k, final_k)
 
-        eff_filter, boost_filter = flt, None
-        if pq.inferred_filter and (flt is None or flt.is_empty()):
-            if r.filter_mode == "restrict":
-                eff_filter = pq.inferred_filter
-            else:
-                boost_filter = pq.inferred_filter
+        inferred = pq.inferred_filter if (flt is None or flt.is_empty()) else None  # explicit filters win
 
-        with timer(latency, "retrieval_ms"):
-            lists = [self.retriever.retrieve(q, candidates_k, eff_filter) for q in pq.retrieval_queries]
-            results = lists[0] if len(lists) == 1 else reciprocal_rank_fusion(lists, k=r.rrf_k)
-            results = deduplicate(results, r.dedup_text_similarity)
-        if self.reranker:
-            with timer(latency, "reranking_ms"):
-                results = self.reranker.rerank(pq.rewritten or pq.normalized, results, self.s.reranker.top_k)
+        if inferred and r.filter_mode == "restrict_with_fallback":
+            # Restricted and unrestricted retrieval are run (and reranked) independently, then merged
+            # 1:1, restricted first: the named source gets priority, but evidence elsewhere stays reachable.
+            restricted = self._ranked(pq, inferred, candidates_k, latency)
+            unrestricted = self._ranked(pq, flt, candidates_k, latency)
+            return interleave(restricted, unrestricted, final_k), pq
+
+        eff_filter, boost_filter = flt, None
+        if inferred:
+            if r.filter_mode == "restrict":
+                eff_filter = inferred
+            else:
+                boost_filter = inferred
+        results = self._ranked(pq, eff_filter, candidates_k, latency)
         if boost_filter:  # applied last so a reranker cannot undo it
             results = apply_boost(results, boost_filter, r.boost_ranks)
         return results[:final_k], pq
+
+    def _ranked(self, pq: ProcessedQuery, flt: MetadataFilter | None, candidates_k: int,
+                latency: dict) -> list[RetrievedChunk]:
+        """One retrieval pass: (multi-)query retrieval -> fusion -> dedup -> optional rerank.
+        Latencies accumulate when called more than once per request."""
+        r = self.s.retrieval
+        step: dict[str, float] = {}
+        with timer(step, "retrieval_ms"):
+            lists = [self.retriever.retrieve(q, candidates_k, flt) for q in pq.retrieval_queries]
+            results = lists[0] if len(lists) == 1 else reciprocal_rank_fusion(lists, k=r.rrf_k)
+            results = deduplicate(results, r.dedup_text_similarity)
+        if self.reranker:
+            with timer(step, "reranking_ms"):
+                results = self.reranker.rerank(pq.rewritten or pq.normalized, results, self.s.reranker.top_k)
+        for key, value in step.items():
+            latency[key] = round(latency.get(key, 0.0) + value, 2)
+        return results
 
     # ---------------- generation ----------------
     def generate(self, query: str, context: BuiltContext):
