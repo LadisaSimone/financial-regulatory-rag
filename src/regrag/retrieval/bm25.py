@@ -24,10 +24,11 @@ def bm25_tokenize(text: str) -> list[str]:
 class BM25Retriever(Retriever):
     name = "bm25"
 
-    def __init__(self, store: ChunkStore, k1: float = 1.5, b: float = 0.75):
+    def __init__(self, store: ChunkStore, k1: float = 1.5, b: float = 0.75, contextual_header: bool = False):
         self.store = store
         self.chunks = store.chunks
-        self.index = BM25Okapi([bm25_tokenize(c.text + " " + (c.section or "")) for c in self.chunks], k1=k1, b=b)
+        docs = [c.index_text(True) if contextual_header else c.text + " " + (c.section or "") for c in self.chunks]
+        self.index = BM25Okapi([bm25_tokenize(d) for d in docs], k1=k1, b=b)
 
     def retrieve(self, query: str, top_k: int, flt: MetadataFilter | None = None) -> list[RetrievedChunk]:
         scores = self.index.get_scores(bm25_tokenize(query))

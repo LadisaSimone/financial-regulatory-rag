@@ -19,6 +19,16 @@ AUTHORITY_PATTERNS = {
     "ESMA": r"\b(ESMA)\b",
 }
 
+# Explicit references to a specific document in the corpus. Only unambiguous identifiers.
+DOCUMENT_PATTERNS = {
+    "eu_directive_2015_849_amld4": r"\b(Directive\s*\(?EU\)?\s*2015/849|2015/849|AMLD\s*4|4th\s+(AML|Anti-Money Laundering)\s+Directive)\b",
+    "eu_regulation_2024_1624_amlr": r"\b(Regulation\s*\(?EU\)?\s*2024/1624|2024/1624|AMLR)\b",
+    "fatf_recommendations": r"\b(FATF\s+Recommendations?\s+\d+|Interpretive\s+Note\s+to\s+Recommendation\s+\d+|INR\s*\.?\s*\d+)\b",
+    "eba_gl_2022_15_remote_customer_onboarding": r"\b(EBA/GL/2022/15|remote\s+customer\s+onboarding\s+guidelines)\b",
+    "eba_gl_2023_04_mltf_risk_access_financial_services": r"\b(EBA/GL/2023/04)\b",
+    "eba_ml_tf_risk_factors_gl_2021_02_consolidated": r"\b(EBA/GL/2021/02|ML/TF\s+Risk\s+Factors\s+Guidelines)\b",
+}
+
 ACRONYMS = {  # light expansion helps BM25 when users write the acronym only
     "edd": "enhanced due diligence",
     "cdd": "customer due diligence",
@@ -56,14 +66,19 @@ def expand_acronyms(q: str) -> str:
 
 
 def infer_filter(q: str) -> MetadataFilter | None:
+    """Most specific explicit reference wins: a named document, else a named authority."""
+    docs = [d for d, pat in DOCUMENT_PATTERNS.items() if re.search(pat, q, re.IGNORECASE)]
+    if docs:
+        return MetadataFilter(document_id=docs)
     found = [a for a, pat in AUTHORITY_PATTERNS.items() if re.search(pat, q, re.IGNORECASE)]
     return MetadataFilter(authority=found) if found else None
 
 
-def apply_boost(chunks, flt: MetadataFilter, factor: float = 1.25):
-    """'boost' mode: prefer matching authority without discarding everything else."""
-    boosted = [c.model_copy(update={"score": c.score * (factor if flt.matches(c.metadata) else 1.0)}) for c in chunks]
-    return sorted(boosted, key=lambda c: c.score, reverse=True)
+def apply_boost(chunks, flt: MetadataFilter, ranks: int = 5):
+    """'boost' mode: move matching chunks up `ranks` positions without discarding others.
+    Rank-based, so it works whatever the score scale (RRF, cosine or cross-encoder logits)."""
+    keyed = [(i - ranks if flt.matches(c.metadata) else i, i, c) for i, c in enumerate(chunks)]
+    return [c for _, _, c in sorted(keyed, key=lambda t: (t[0], t[1]))]
 
 
 REWRITE_PROMPT = """Rewrite the user's question into a precise, self-contained search query for

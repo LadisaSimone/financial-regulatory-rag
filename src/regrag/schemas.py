@@ -60,6 +60,14 @@ class Chunk(BaseModel):
     def payload(self) -> dict[str, Any]:
         return self.model_dump()
 
+    def index_text(self, contextual_header: bool = False) -> str:
+        """Text used for embedding / BM25. With a contextual header, chunks that only *cite*
+        "Directive (EU) 2015/849" become distinguishable from the Directive's own chunks."""
+        if not contextual_header:
+            return self.text
+        sec = f" — {self.section}" if self.section else ""
+        return f"{self.authority} — {self.title}{sec}\n{self.text}"
+
 
 class RetrievedChunk(BaseModel):
     chunk_id: str

@@ -17,6 +17,16 @@ from regrag.evaluation.dataset import load_dataset
 from regrag.retrieval.bm25 import bm25_tokenize
 
 
+def best_window(text: str, query_tokens: list[str], size: int = 600, step: int = 100) -> str:
+    """Show the part of a long chunk that overlaps the question most, not just its beginning."""
+    if len(text) <= size:
+        return text
+    q = set(query_tokens)
+    starts = range(0, len(text) - size + step, step)
+    best = max(starts, key=lambda i: len(q & set(bm25_tokenize(text[i:i + size]))))
+    return ("…" if best else "") + text[best:best + size]
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--strategy", default="section")
@@ -45,7 +55,7 @@ def main() -> None:
             out.append(f"- `{ev.document_id}` pp.{min(ev.pages)}–{max(ev.pages)}\n")
             for i in top:
                 c = cands[i]
-                excerpt = " ".join(c.text.split())[:600]
+                excerpt = best_window(" ".join(c.text.split()), q)
                 out.append(f"  - p.{c.page_start}–{c.page_end} · §{c.section or '—'}\n\n    > {excerpt}…\n")
     path = s.path("eval_dataset").with_name("review.md")
     path.write_text("\n".join(out))

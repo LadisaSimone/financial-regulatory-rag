@@ -86,7 +86,7 @@ def run_ingestion(settings: Settings, download: bool = True, index: bool = True,
     if index and chunks:
         embedder = embedder or get_embedding_provider(settings.embeddings, settings.path("cache_dir"))
         vs = vector_store or QdrantStore(settings.vector_store.url, settings.collection_name())
-        vectors = embedder.embed_documents([c.text for c in chunks])
+        vectors = embedder.embed_documents([c.index_text(settings.chunking.contextual_header) for c in chunks])
         vs.recreate(embedder.dim)
         vs.upsert(chunks, vectors)
         log(logger, "indexed", collection=settings.collection_name(), points=len(chunks))

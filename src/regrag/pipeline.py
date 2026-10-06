@@ -56,11 +56,11 @@ class RAGPipeline:
     def _build_retriever(self) -> Retriever:
         r = self.s.retrieval
         if r.type == "bm25":
-            return BM25Retriever(self.store)
+            return BM25Retriever(self.store, contextual_header=self.s.chunking.contextual_header)
         dense = DenseRetriever(self.vs, self.embedder)
         if r.type == "dense":
             return dense
-        return HybridRetriever(dense, BM25Retriever(self.store), r.dense_top_k, r.sparse_top_k,
+        return HybridRetriever(dense, BM25Retriever(self.store, contextual_header=self.s.chunking.contextual_header), r.dense_top_k, r.sparse_top_k,
                                r.rrf_k, r.dense_weight, r.sparse_weight)
 
     # ---------------- retrieval ----------------
@@ -82,12 +82,12 @@ class RAGPipeline:
         with timer(latency, "retrieval_ms"):
             lists = [self.retriever.retrieve(q, candidates_k, eff_filter) for q in pq.retrieval_queries]
             results = lists[0] if len(lists) == 1 else reciprocal_rank_fusion(lists, k=r.rrf_k)
-            if boost_filter:
-                results = apply_boost(results, boost_filter)
             results = deduplicate(results, r.dedup_text_similarity)
         if self.reranker:
             with timer(latency, "reranking_ms"):
                 results = self.reranker.rerank(pq.rewritten or pq.normalized, results, self.s.reranker.top_k)
+        if boost_filter:  # applied last so a reranker cannot undo it
+            results = apply_boost(results, boost_filter, r.boost_ranks)
         return results[:final_k], pq
 
     # ---------------- generation ----------------

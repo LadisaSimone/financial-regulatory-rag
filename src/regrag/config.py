@@ -42,6 +42,9 @@ class Chunking(BaseModel):
     max_tokens: int = Field(512, gt=16)
     overlap: int = Field(64, ge=0)
     child_tokens: int = 128
+    # Prepend "authority — title — section" to the text that is embedded / BM25-indexed
+    # (the chunk text shown to the LLM is unchanged). Changes the index → separate collection.
+    contextual_header: bool = False
     tokenizer: str = "cl100k_base"
 
 
@@ -69,6 +72,7 @@ class Retrieval(BaseModel):
     dedup_text_similarity: float = 0.9
     infer_filters: bool = False
     filter_mode: Literal["boost", "restrict"] = "boost"
+    boost_ranks: int = 5  # boost mode: matching chunks move up this many positions
 
 
 class Reranker(BaseModel):
@@ -134,7 +138,8 @@ class Settings(BaseModel):
         model = re.sub(r"[^a-zA-Z0-9]+", "_", self.embeddings.model)
         return (
             f"{self.vector_store.collection_prefix}_{self.chunking.strategy}"
-            f"_{model}_v{self.vector_store.collection_version}"
+            f"_{model}{'_ctx' if self.chunking.contextual_header else ''}"
+            f"_v{self.vector_store.collection_version}"
         ).lower()
 
 

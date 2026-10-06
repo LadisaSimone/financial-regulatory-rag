@@ -55,3 +55,29 @@ def test_hybrid_end_to_end_retrieval(pipeline):
 def test_filter_restricts_results(pipeline):
     chunks, _ = pipeline.retrieve("beneficial owner", flt=MetadataFilter(authority=["EBA"]))
     assert chunks and all(c.metadata["authority"] == "EBA" for c in chunks)
+
+
+def test_document_reference_inference():
+    f = infer_filter("What does Article 18 of Directive 2015/849 require?")
+    assert f.document_id == ["eu_directive_2015_849_amld4"] and not f.authority
+    assert infer_filter("When must CDD be applied under the AMLR?").document_id == ["eu_regulation_2024_1624_amlr"]
+    assert infer_filter("What does FATF Recommendation 10 require?").document_id == ["fatf_recommendations"]
+    assert infer_filter("What does the EBA say about PEPs?").authority == ["EBA"]
+
+
+def test_rank_boost_moves_matches_up_without_dropping():
+    from regrag.retrieval.query import apply_boost
+
+    items = [rc(f"c{i}", doc="target" if i == 6 else "other") for i in range(8)]
+    out = apply_boost(items, MetadataFilter(document_id=["target"]), ranks=5)
+    assert [c.chunk_id for c in out][:3] == ["c0", "c1", "c6"] and len(out) == 8  # rank 7 -> 2
+
+
+def test_contextual_index_text():
+    from regrag.schemas import Chunk
+
+    c = Chunk(chunk_id="x", document_id="d", text="body", title="Directive (EU) 2015/849", authority="EC",
+              document_type="directive", section="Article 18", page_start=1, page_end=1,
+              chunking_strategy="section", token_count=1, position=0)
+    assert c.index_text() == "body"
+    assert c.index_text(True).startswith("EC — Directive (EU) 2015/849 — Article 18\n")

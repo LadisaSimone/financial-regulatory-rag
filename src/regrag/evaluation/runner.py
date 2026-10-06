@@ -23,6 +23,7 @@ from regrag.evaluation.metrics import (
 )
 from regrag.logging_utils import get_logger, log
 from regrag.pipeline import RAGPipeline
+from regrag.retrieval.query import infer_filter
 
 logger = get_logger("evaluation")
 
@@ -95,9 +96,12 @@ def run_evaluation(settings: Settings, name: str | None = None, generation: bool
         return round(statistics.quantiles(v, n=100)[q - 1], 2) if len(v) >= 2 else (round(v[0], 2) if v else 0.0)
 
     by_type: dict[str, list] = {}
-    for r in per_q:
+    by_ref: dict[str, list] = {}
+    for r, it in zip(per_q, items, strict=True):
         if "retrieval" in r:
             by_type.setdefault(r["question_type"], []).append(r["retrieval"])
+            named = "names_document_or_authority" if infer_filter(it.question) else "no_explicit_reference"
+            by_ref.setdefault(named, []).append(r["retrieval"])
 
     result = {
         "experiment_id": exp_id, "name": name, "timestamp": datetime.now(UTC).isoformat(),
@@ -105,6 +109,7 @@ def run_evaluation(settings: Settings, name: str | None = None, generation: bool
         "n_answerable": sum(i.answerable for i in items),
         "retrieval_metrics": mean_dicts(retr_rows),
         "retrieval_metrics_by_type": {k: mean_dicts(v) for k, v in by_type.items()},
+        "retrieval_metrics_by_reference": {k: {**mean_dicts(v), "n": len(v)} for k, v in by_ref.items()},
         "generation_metrics": mean_dicts(gen_rows),
         "generation_metrics_note": "keys prefixed llm_judge_ are LLM-as-a-judge estimates, not ground truth",
         "latency_ms": {"retrieval_p50": pct(lat_retr, 50), "retrieval_p95": pct(lat_retr, 95),

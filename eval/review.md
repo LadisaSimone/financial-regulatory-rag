@@ -670,9 +670,19 @@ For each question: read the passage, check the pages answer the question, then s
     > If the host country does not permit the proper implementation of the measures above, financial groups should apply appropriate additional measures to manage the money laundering and terrorist financing risks, and inform their home supervisors. If the additional measures are not sufficient, competent authorities in the home country should consider additional supervisory actions, including placing additional controls on the financial group, including, as appropriate, requesting the financial group to close down its operations in the host country.  2012-2025…
 
 
-## ✅ q044 · factual · medium
+## ⬜ q044 · factual · medium
 
 **What does the FATF require for business relationships with natural and legal persons from higher-risk countries?**
+
+- `fatf_recommendations` pp.19–20
+
+  - p.19–20 · §18. Internal controls and foreign branches and subsidiaries
+
+    > 18. Internal controls and foreign branches and subsidiaries Financial institutions should be required to implement programmes against money laundering and terrorist financing. Financial groups should be required to implement group-wide programmes against money laundering and terrorist financing, including policies and procedures for sharing information within the group for AML/CFT purposes.  2012-2025 Financial institutions should be required to ensure that their foreign branches and majorityowned subsidiaries apply AML/CFT measures consistent with the home country requirements implementing t…
+
+  - p.20–21 · §DESIGNATED NON-FINANCIAL BUSINESSES AND PROFESSIONS
+
+    > DESIGNATED NON-FINANCIAL BUSINESSES AND PROFESSIONS 22. DNFBPs: customer due diligence The customer due diligence and record-keeping requirements set out in Recommendations 10, 11, 12, 15, and 17, apply to designated non-financial businesses and professions (DNFBPs) in the following situations: (a) Casinos – when customers engage in financial transactions equal to or above the applicable designated threshold.  2012-2025 (b) Real estate agents – when they are involved in transactions for their client concerning the buying and selling of real estate. (c) Dealers in precious metals and dealers i…
 
 - `fatf_recommendations` pp.92–93
 
@@ -1355,7 +1365,7 @@ For each question: read the passage, check the pages answer the question, then s
     > 4.1.4 Ongoing monitoring of the remote customer onboarding solution 18. Credit and financial institutions should monitor the remote customer onboarding solution on an ongoing basis to ensure that it operates in line with the credit and financial institutions expectations. They should complement their policies and procedures described in paragraph 9 with a description of at least: a) the steps they will take to be satisfied of the ongoing quality, completeness, accuracy and adequacy of data collected during the remote customer onboarding process, which should be commensurate to the ML/TF risks …
 
 
-## ⬜ q089 · factual · hard
+## ✅ q089 · factual · hard
 
 **What should a firm consider before refusing or terminating a business relationship on ML/TF risk grounds?**
 
@@ -1540,7 +1550,7 @@ For each question: read the passage, check the pages answer the question, then s
     > p. 3). (c) the activities of criminal organisations as defined in Article 1 of Council Joint Action 98/733/JHA (1); (d) fraud affecting the Union's financial interests, where it is at least serious, as defined in Article 1(1) and Article 2(1) of the Convention on the protection of the European Communities' financial interests (2); (e) corruption; (f) all offences, including tax crimes relating to direct taxes and indirect taxes and as defined in the national law of the Member States, which are punishable by deprivation of liberty or a detention order for a maximum of more than one year or, as …
 
 
-## ✅ q096 · factual · easy
+## ⬜ q096 · factual · easy
 
 **What does the EBA say about enhanced due diligence?**
 
@@ -1553,6 +1563,76 @@ For each question: read the passage, check the pages answer the question, then s
   - p.35–36 · §Enhanced customer due diligence
 
     > Enhanced customer due diligence 4.45. Pursuant to Articles 18 to 24 of Directive (EU) 2015/849, firms must apply EDD measures in higher risk situations to manage and mitigate those risks appropriately. EDD measures cannot be substituted for regular CDD measures but must be applied in addition to regular CDD measures. 4.46. Directive (EU) 2015/849 lists specific cases that firms must always treat as higher risk: where the customer, or the customer’s beneficial owner, is a PEP (Articles 20 to 24); where a firm enters into a correspondent relationship involving the execution of payments with a th…
+
+- `eba_ml_tf_risk_factors_gl_2021_02_consolidated` pp.68–69
+
+  - p.68–69 · §Enhanced customer due diligence
+
+    > Enhanced customer due diligence 10.15. To comply with Article 18a in respect of relationships or transactions involving high-risk third countries, e-money issuers should apply the EDD measures set out in this regard in Title I. 10.16. Examples of EDD measures firms should apply in all other high-risk situations include: obtaining additional customer information during identification, such as the source of funds; applying additional verification measures from a wider variety of reliable and independent sources (e.g. checking against online databases) in order to verify the customer’s or benefic…
+
+  - p.69–70 · §Simplified customer due diligence
+
+    > Simplified customer due diligence 10.17. To the extent permitted by national legislation, firms may consider applying SDD to lowrisk e-money products that do not benefit from the exemption provided by Article 12 of Directive (EU) 2015/849. 10.18. To the extent permitted by national legislation, examples of SDD measures firms may apply in low-risk situations include: postponing the verification of the customer’s or beneficial owner’s identity to a certain later date after the establishment of the relationship or until a certain (low) monetary threshold is exceeded (whichever occurs first). The …
+
+- `eba_ml_tf_risk_factors_gl_2021_02_consolidated` pp.79–80
+
+  - p.78–79 · §Country or geographical risk factors
+
+    > Country or geographical risk factors 12.6. The following factors may contribute to increasing risk: Business is conducted in countries that have a culture of banking secrecy or do not comply with international tax transparency standards. The customer lives in, or their funds derive from activity in, a jurisdiction associated with higher ML/TF risk. Measures 12.7. The staff member managing a wealth management firm’s relationship with a customer (the relationship manager) typically plays a key role in assessing risk. The relationship manager’s close contact with the customer will facilitate the …
+
+  - p.79–80 · §Enhanced customer due diligence
+
+    > Enhanced customer due diligence 12.8. To comply with Article 18a in respect of relationships or transactions involving high-risk third countries, firms should apply the EDD measures set out in this regard in Title I. Obtaining and verifying more information about clients than in standard risk situations and reviewing and updating this information both on a regular basis and when prompted by material changes to a client’s profile. Firms should perform reviews on a risk-sensitive basis, reviewing higher risk clients at least annually but more frequently if risk dictates. These procedures may inc…
+
+- `eba_ml_tf_risk_factors_gl_2021_02_consolidated` pp.85–86
+
+  - p.85–86 · §Enhanced customer due diligence
+
+    > Enhanced customer due diligence 13.19. To comply with Article 18a in respect of relationships or transactions involving high-risk third countries, firms should apply the EDD measures set out in this regard in Title I. 13.20. In other higher risk situations, banks must also apply EDD. As part of this, banks should consider whether performing more thorough due diligence checks on the transaction itself and on other parties to the transaction (including non-customers) would be appropriate. 13.21. Checks on other parties to the transaction may include: Taking steps to better understand the ownersh…
+
+  - p.86–87 · §Simplified customer due diligence
+
+    > Simplified customer due diligence 13.24. The checks banks routinely carry out to detect fraud and ensure the transaction conforms to the standards set by the International Chamber of Commerce mean that, in practice, they will not apply SDD measures even in lower risk situations. Guideline 14: Sectoral guideline for life insurance undertakings 14.1. Life insurance products are designed to financially protect the policy holder against the risk of an uncertain future event, such as death, illness or outliving savings in retirement (longevity risk). Protection is achieved by an insurer who pools t…
+
+- `eba_ml_tf_risk_factors_gl_2021_02_consolidated` pp.92–94
+
+  - p.94–94 · §Simplified customer due diligence
+
+    > Simplified customer due diligence 14.23. The following measures may satisfy some of the CDD requirements in low-risk situations (to the extent permitted by national legislation): Firms may be able to assume that the verification of the identity of the customer is fulfilled on the basis of a payment drawn on an account that the firm is satisfied is in the sole or joint name of the customer with an EEAregulated credit institution. Firms may be able to assume that the verification of the identity of the beneficiary of the contract is fulfilled on the basis of a payment made to an account in the b…
+
+  - p.92–93 · §Enhanced customer due diligence
+
+    > Enhanced customer due diligence 14.18. To comply with Article 18a in respect of relationships or transactions involving high-risk third countries, firms should apply the EDD measures set out in this regard in Title I. The following EDD measures may be appropriate in all other high-risk situation: Where the customer makes use of the ‘free look’/‘cooling-off’ period, the premium should be refunded to the customer’s bank account from which the funds were paid. Firms should ensure that they have verified the customer’s identity in line with Article 13 of Directive (EU) 2015/849 before making a ref…
+
+- `eba_ml_tf_risk_factors_gl_2021_02_consolidated` pp.103–104
+
+  - p.103–104 · §Enhanced Customer Due Diligence
+
+    > Enhanced Customer Due Diligence 16.15. In the situations described in guidelines 16.14 (a) and (b), examples of EDD measures a fund or fund manager should apply in high-risk situations include: obtaining additional customer information, such as the customer’s reputation and background, before the establishment of the business relationship; taking additional steps to further verify the documents, data or information obtained; obtaining information on the source of funds and/or the source wealth of the customer and of the customer’s beneficial owner; requiring that the redemption payment is made…
+
+  - p.104–105 · §Simplified Customer Due Diligence
+
+    > Simplified Customer Due Diligence 16.19. In the situations described in guidelines 16.14 (a) and 16.14 (b), in lower risk situations, to the extent permitted by national legislation, and provided that the funds are verifiably being transferred to or from a payment account held in the customer’s sole or joint name with an EEA-regulated credit or financial institution, an example of the SDD measures the fund or fund manager may apply is using the source of funds to meet some of the CDD requirements. 16.20. In the situations described in guideline 16.14(c) , where the financial intermediary is th…
+
+- `eba_ml_tf_risk_factors_gl_2021_02_consolidated` pp.119–120
+
+  - p.119–120 · §Enhanced customer due diligence
+
+    > Enhanced customer due diligence 19.11. Where the risk associated with an occasional transaction or business relationship is increased, firms should apply EDD in line with Title I, including, where appropriate, increased transaction monitoring (e.g. increased frequency or lower thresholds), obtaining more information about the nature and purpose of the business, or the source of the customer’s funds. Simplified customer due diligence 19.12. To the extent permitted by national legislation, firms may consider applying SDD in low- risk situations such as: postponing the verification of the custome…
+
+  - p.119–119 · §Customers due diligence
+
+    > Customers due diligence 19.9. Firms should clearly define in their internal policies and procedures at what point they should carry out CDD to their occasional customers. This should encompass: The situation where a transaction or identified linked transactions amount to EUR 15 000, or to the national threshold(s) if lower, or more. The policies and procedures should clearly define at what point a series of one-off transactions amounts to a business relationship taking into account the context of the firms’activities (i.e. the average normal size of a one-off transaction by their normal client…
+
+- `eba_ml_tf_risk_factors_gl_2021_02_consolidated` pp.122–123
+
+  - p.123–123 · §Enhanced customer due diligence
+
+    > potential future customers; in securitization transactions as defined in Article 2(1) of Regulation (EU) 2017/2402: agents acting on behalf of the SSPE (who may or may not be a regulated entity); Firms offering corporate finance services should apply enhanced ongoing monitoring. In that regard, firms that use automated transaction monitoring should combined it with the knowledge and expertise of staff engaged in the activity. This enhanced monitoring should result in a clear understanding of why a customer undertakes a particular transaction or activity; for this purpose, firms should ensure t…
+
+  - p.122–123 · §Enhanced customer due diligence
+
+    > Enhanced customer due diligence 20.7. Where the risk associated with a business relationship or an occasional transaction is increased, firms should apply EDD measures such as: Additional checks on customers’ ownership and control structure, beneficial ownership, and in particular any links the customer might have with politically exposed persons, and the extent to which these links affect the ML/TF risk associated with the business relationship; Assessments of the integrity of directors, shareholders, and other parties with significant involvement in the customer’s business and the corporate …
 
 
 ## ✅ q097 · cross_document · hard
@@ -1580,9 +1660,19 @@ For each question: read the passage, check the pages answer the question, then s
     > 13. Correspondent banking Financial institutions should be required, in relation to cross-border correspondent banking and other similar relationships, in addition to performing normal customer due diligence measures, to: (a) gather sufficient information about a respondent institution to understand fully the nature of the respondent’s business and to determine from publicly available information the reputation of the institution and the quality of supervision, including whether it has been subject to a money laundering or terrorist financing investigation or regulatory action; (b) assess the …
 
 
-## ✅ q098 · ambiguous · hard
+## ⬜ q098 · ambiguous · hard
 
 **What does it say about risky customers?**
+
+- `eba_ml_tf_risk_factors_gl_2021_02_consolidated` pp.13–17
+
+  - p.13–14 · §Customer risk factors
+
+    > Customer risk factors When identifying the risk associated with their customers, including their customers’ beneficial owners, firms should consider the risk related to: the customer’s and the customer’s beneficial owner’s business or professional activity; the customer’s and the customer’s beneficial owner’s reputation; and the customer’s and the customer’s beneficial owner’s nature and behaviour, including whether this could point to increased TF risk. Risk factors that may be relevant when identifying the risk associated with a customer’s or a customer’s beneficial owner’s business or profe…
+
+  - p.15–16 · §Customer risk factors
+
+    > Does the customer have legitimate reasons for being unable to provide robust evidence of their identity, perhaps because they are an asylum seeker? Does the firm have any doubts about the veracity or accuracy of the customer’s or beneficial owner’s identity? Are there indications that the customer might seek to avoid the establishment of a business relationship? For example, does the customer look to carry out one transaction or several one-off transactions where the establishment of a business relationship might make more economic sense? Is the customer’s ownership and control structure trans…
 
 - `eba_ml_tf_risk_factors_gl_2021_02_consolidated` pp.35–36
 

@@ -73,6 +73,32 @@ Findings:
 Next: inspect the 8 remaining misses (chunking vs ground truth vs retrieval); try a domain-stronger
 reranker (e.g. `BAAI/bge-reranker-base`); then run end-to-end generation metrics on the chosen configuration.
 
+## Error analysis — questions missed in the top 10 by hybrid + rerank (2026-10-06)
+
+8 of 100 answerable questions had no ground-truth page in the top 10 (`hybrid_rerank-11bcee69`).
+Each was inspected by comparing the retrieved chunks with the ground-truth chunks.
+
+| Cause | Questions | What happened | Fix |
+|---|---|---|---|
+| **Document confusion** (retrieval) | q028, q031, q034, q035 | The question names *Directive 2015/849*; the top results are EBA guideline paragraphs that **cite** the Directive ("To comply with Article 19 of Directive (EU) 2015/849…"), or AMLR articles on the same topic. The Directive's own Articles 3, 14, 18, 19 are not in the top 10. | Document-aware retrieval: infer an explicit document reference from the query (boost/restrict) and a contextual header (authority — title — section) in the indexed text |
+| **Authority ignored** (retrieval) | q073 | "What … does **the EBA** expect for PEPs?" → AMLR Art. 42, AMLD Art. 20, FATF R.12 ranked above the EBA PEP section (pp. 36–37). Filter inference was disabled. | Same as above (authority boost) |
+| **Ground truth too narrow** (dataset) | q044 | Recommendation 19's own text (p. 19–20) was retrieved at rank 2, but the ground truth only listed the Interpretive Note (pp. 92–93). The R.19 text sits in a chunk labelled "18. Internal controls…" (heading not detected). | Added pp. 19–20 to the ground truth; parser note below |
+| **Ground truth too narrow** (dataset) | q096 | "What does the EBA say about EDD?" — retrieved the EBA's sectoral EDD sections (pp. 68–69, 119–120…), which are valid answers; the ground truth only listed Title I (pp. 35–36). | Ground truth extended to all 8 EBA "Enhanced customer due diligence" sections |
+| **Ambiguous question** (dataset) | q098 | "What does it say about risky customers?" — retrieved EBA customer-risk-factor sections; the ground truth only had EDD. Both readings are legitimate. | Ground truth extended to Customer risk factors (pp. 13–17) + EDD (pp. 35–36) |
+
+Summary: **5 of 8 misses are retrieval failures with a single root cause (the system ignores which
+document or authority the user names); 3 of 8 were evaluation-set errors.** The changed ground truth
+(q044, q096, q098) is marked `validated: false` until reviewed; all earlier runs must be re-run on the
+corrected set before comparing with new experiments.
+
+Caveat: ~60% of questions name a document or authority explicitly because they were written against
+known sources. Gains from document-aware retrieval should therefore also be reported on the questions
+that do **not** name one, to check they are not hurt.
+
+Parser follow-up: FATF Recommendation headings that follow another Recommendation on the same page
+(e.g. "19. Higher-risk countries" inside the R.18 chunk) are not detected as headings, so the chunk keeps
+the previous section label.
+
 ## Fixed decisions (non-experimental)
 
 - **Qdrant, self-hosted in Docker** — spec requirement; no dependency on a managed account.
