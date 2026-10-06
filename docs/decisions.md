@@ -11,7 +11,8 @@ the entry is marked **PENDING** and the current default is only a starting hypot
 | 4 | Reranker | off, `cross-encoder/ms-marco-MiniLM-L-6-v2` (30 candidates → top 10) on dense and hybrid | Recall@10, Hit@10, nDCG@10, p95 latency | Hybrid+rerank: Recall@10 0.82, Hit@10 0.92, nDCG 0.66 vs dense 0.77 / 0.86 / 0.62; p50 latency 6 → 214 ms (`hybrid_rerank-11bcee69`, `dense_rerank-4592e9ee`) | **PROVISIONAL: hybrid + reranker.** Gains are in the tail (top 10), not at rank 1–5; hurts exact references. +210 ms is small vs ~4 s LLM time |
 | 5 | Query rewriting | off, LLM rewrite | Recall@5 on ambiguous/noisy questions, cost | — | PENDING (disable if negative) |
 | 6 | Multi-query | off, 3 variants | Recall@10, latency, cost | — | PENDING |
-| 7 | Filter inference | off, boost, restrict | Recall@5 on authority-specific questions | — | PENDING |
+| 7 | Filter inference | off, boost (+5 ranks), restrict | Recall@5, Hit@10, split by questions that name / don't name a source | Restrict: Recall@5 0.71 → 0.80, Hit@10 0.95 → 1.00, MRR 0.67 → 0.76, nDCG 0.66 → 0.79; no change on the 35 questions without a reference (`hr_restrict`, `hr_boost`, `hybrid_rerank_v2`) | **ADOPTED: restrict** (default.yaml). Risk documented below |
+| 9 | Contextual chunk header | off, "authority — title — section" prepended to indexed text | Recall@5, Hit@10 | Recall@5 0.71 → 0.71, Hit@10 unchanged, one new miss (q007); with boost 0.76 vs 0.74 without header (`hr_ctx`, `hr_ctx_boost`) | **REJECTED** (negative result): no measurable gain, requires a separate index |
 | 8 | Context budget | 3k, 6k, 10k tokens | citation correctness, cost | — | PENDING |
 
 ## Decision 3 — Retriever (2026-10-06)
@@ -98,6 +99,46 @@ that do **not** name one, to check they are not hurt.
 Parser follow-up: FATF Recommendation headings that follow another Recommendation on the same page
 (e.g. "19. Higher-risk countries" inside the R.18 chunk) are not detected as headings, so the chunk keeps
 the previous section label.
+
+## Decision 7 — Document-aware retrieval (2026-10-06)
+
+Baseline: hybrid + reranker (30 → 10), re-run on the corrected ground truth (q044, q096, q098) →
+`hybrid_rerank_v2`. Query parsing detects explicit references: a named document
+("Directive 2015/849", "AMLR", "FATF Recommendation 10", "EBA/GL/2021/02") or, failing that, a named
+authority ("EBA", "FATF"). 65 of 100 questions contain such a reference.
+
+| Configuration | Recall@1 | Recall@5 | Recall@10 | Hit@10 | MRR | nDCG@10 | Missed @10 |
+|---|---|---|---|---|---|---|---|
+| Hybrid + rerank (baseline v2) | 0.41 | 0.71 | 0.83 | 0.95 | 0.67 | 0.66 | 5 |
+| + boost (+5 ranks) | 0.47 | 0.74 | 0.83 | 0.95 | 0.72 | 0.71 | 5 |
+| **+ restrict** | **0.50** | **0.80** | **0.90** | **1.00** | **0.76** | **0.79** | **0** |
+| + contextual header | 0.41 | 0.71 | 0.84 | 0.95 | 0.67 | 0.67 | 5 |
+| + contextual header + boost | 0.47 | 0.76 | 0.84 | 0.95 | 0.73 | 0.72 | 5 |
+
+Split by reference (Recall@5 / MRR):
+
+| Subset | n | Baseline | Boost | Restrict |
+|---|---|---|---|---|
+| Names a document or authority | 65 | 0.68 / 0.60 | 0.73 / 0.68 | **0.82 / 0.75** |
+| No explicit reference | 35 | 0.76 / 0.80 | 0.76 / 0.80 | 0.76 / 0.80 |
+
+Findings:
+- Restrict fixes all five "document confusion / authority ignored" misses from the error analysis
+  (q028, q031, q034, q035, q073) and lifts exact-reference questions from Recall@5 0.59 to 0.85.
+- Boost is too weak: +5 ranks is not enough when ~10 EBA chunks citing the Directive outrank it.
+- Questions without a reference are untouched, as expected — the gain is not bought at their expense.
+- The contextual header does not help on top of the reranker; rejected to avoid a second index.
+
+Risks of restrict, and mitigations:
+- A question that names one source but whose answer is elsewhere ("Does the EBA add anything to
+  Article 18 of the Directive?") would be restricted to the first-named document. Multiple names are
+  kept (`document_id` list), and API users can always pass explicit filters, which override inference.
+- 65% of benchmark questions name their source because they were written against known documents; real
+  users may name sources less often. The 35-question subset shows no regression, but the absolute gain
+  will be smaller in production.
+- Experiment ids: runs before this decision share the config hash `a3bb8306` because filter settings and
+  the contextual header were not yet part of the fingerprint (fixed in `runner.py`); experiment *names*
+  identify them unambiguously.
 
 ## Fixed decisions (non-experimental)
 

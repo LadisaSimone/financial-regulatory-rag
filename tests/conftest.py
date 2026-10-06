@@ -88,6 +88,7 @@ def settings(corpus):
         "vector_store": {"url": ":memory:"},
         "llm": {"provider": "fake", "model": "fake-extractive"},
         "retrieval": {"type": "hybrid", "final_top_k": 5},
+        "reranker": {"enabled": False},  # tests stay offline: no cross-encoder download
     })
 
 
